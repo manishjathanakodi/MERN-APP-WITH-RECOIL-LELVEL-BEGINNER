@@ -5,11 +5,14 @@ import TextField from "@mui/material/TextField";
 import {Card, Typography} from "@mui/material";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
+import { useRecoilState } from 'recoil';
+import { userState } from './store/atoms/user';
 
 function SignIn() {
     const navigate = useNavigate();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [user,setUser] = useRecoilState(userState)
   return (
     <div>
         <div style={{paddingTop: 150,
@@ -45,6 +48,8 @@ function SignIn() {
                         let data = response.data
                         localStorage.setItem("token", data.token)
                         navigate("/admin/animes")
+
+                        setUser({userEmail: data.username})
 
                     }
                     }>Sign In</Button>

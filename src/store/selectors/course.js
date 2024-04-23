@@ -5,7 +5,12 @@ export const courseDetails = selector({
   key: "courseDetails",
   get: ({ get }) => {
     const state = get(courseState);
+    if(state.course){
     return state.course;
+    }
+    else{
+        return " ";
+    }
   },
 });
 

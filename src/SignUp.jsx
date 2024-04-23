@@ -4,10 +4,15 @@ import Button from '@mui/material/Button';
 import TextField from "@mui/material/TextField";
 import {Card, Typography} from "@mui/material";
 import axios from "axios";
+import { useRecoilState } from 'recoil';
+import { userState } from './store/atoms/user';
+import { useNavigate } from 'react-router-dom';
 
 function SignUp() {
+    const navigate = useNavigate()
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const[user,setUser]= useRecoilState(userState)
   return (
     <div>
         <div style={{paddingTop: 150,
@@ -42,6 +47,8 @@ function SignUp() {
                         })
                         let data = response.data
                         localStorage.setItem("token", data.token)
+                        setUser({userEmail: data.username})
+                        navigate("/admin/animes")
                     }
                     }>Sign Up</Button>
                 </Card>

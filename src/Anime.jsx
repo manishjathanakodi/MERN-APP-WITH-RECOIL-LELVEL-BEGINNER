@@ -3,14 +3,21 @@ import axios from 'axios'
 import { useParams } from 'react-router-dom'
 import { Card, Grid } from "@mui/material";
 import { Typography, TextField, Button } from "@mui/material";
+import { courseState } from './store/atoms/course';
+import { useRecoilState, useRecoilValue } from 'recoil';
+import { courseDetails, courseTitle } from './store/selectors/course';
 
 
 
 
 function Anime() {
     let { id } = useParams();
-
+    const courses = useRecoilValue(courseDetails)
     const [anime, setAnime] = useState({})
+    const [course, setCourse] = useRecoilState(courseState);
+
+
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -20,7 +27,8 @@ function Anime() {
                         "Authorization": `Bearer ${localStorage.getItem("token")}`
                     }
                 });
-                setAnime(response.data);
+                setCourse({
+                    course:response.data});
             }
             catch (error) {
                 console.error(error);
@@ -29,21 +37,26 @@ function Anime() {
 
         fetchData();
     }, [])
+    useEffect(() => {
+        console.log(courses)
+    },[courses])
+  
   return (
     <div>
-        <GrayTopper title={anime.title}/>
+        <GrayTopper />
         <Grid container>
         <Grid item lg={8} md={12} sm={12}>
-            <EditCard anime={anime} setAnime={setAnime}/>
+            <EditCard courses={courses}/>
         </Grid>
         <Grid item lg={4} md={12} sm={12}>
-            <AniCard anime={anime}/>
+            <AniCard />
             </Grid>
         </Grid>
     </div>
   )
 }
-function GrayTopper({title}) {
+function GrayTopper() {
+    const title = useRecoilValue(courseTitle)
     return <div style={{height: 250, background: "#212121", top: 0, width: "100vw", zIndex: 0, marginBottom: -250}}>
         <div style={{ height: 250, display: "flex", justifyContent: "center", flexDirection: "column"}}>
             <div>
@@ -54,21 +67,21 @@ function GrayTopper({title}) {
         </div>
     </div>
 }
-function EditCard({anime, setAnime}) {
-    const [title, setTitle] = useState()
-    const [image, setImage] = useState()
-    const [price, setPrice] = useState()
-    const [description, setDescription] = useState()
-    const [content, setContent] = useState()
+function EditCard({courses}) {
+   
+    const [course, setCourse] = useRecoilState(courseState)
+    const [title, setTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [image, setImage] = useState("");
+    const [price, setPrice] = useState("");
 
     
     useEffect(() => {
-        setTitle(anime.title)
-        setImage(anime.image)
-        setPrice(anime.price)
-        setDescription(anime.description)
-        setContent(anime.content)
-    }, [anime])
+        setTitle(courses.title)
+        setImage(courses.image)
+        setPrice(courses.price)
+        setDescription(courses.description)
+    }, [courses])
     return <div style={{display: "flex", justifyContent: "center"}}>
     <Card varint={"outlined"} style={{maxWidth: 600, marginTop: 200}}>
         <div style={{padding: 20}}>
@@ -120,7 +133,7 @@ function EditCard({anime, setAnime}) {
             <Button
                 variant="contained"
                 onClick={async () => {
-                    axios.put("http://localhost:3000/admin/animes/" + anime._id, {
+                    axios.put("http://localhost:3000/admin/animes/" + courses._id, {
                         title: title,
                         description: description,
                         imageLink: image,
@@ -134,12 +147,12 @@ function EditCard({anime, setAnime}) {
                     });
                    
                     let updatedContent = {
-                        _id: anime._id,
+                        _id: courses._id,
                         title: title,
                         description: description,
                         image: image,
                     };
-                    setAnime(updatedContent); }
+                    setCourse({ course: updatedContent}); }
             }
             > Update course</Button>
         </div>
@@ -149,8 +162,9 @@ function EditCard({anime, setAnime}) {
    
 }
 
-function AniCard(props){
-    const anime = props.anime
+function AniCard(){
+    const courses = useRecoilValue(courseDetails)
+
     return <div style={{display: "flex",  marginTop: 50, justifyContent: "center", width: "100%"}}>
          <Card style={{
         margin: 10,
@@ -161,14 +175,14 @@ function AniCard(props){
         paddingBottom: 15,
         zIndex: 2
     }}>
-        <img src={anime.image} style={{width: 350}} ></img>
+        <img src={courses.image} style={{width: 350}} ></img>
         <div style={{marginLeft: 10}}>
-            <Typography variant="h5">{anime.title}</Typography>
+            <Typography variant="h5">{courses.title}</Typography>
             <Typography variant="subtitle2" style={{color: "gray"}}>
                 Price
             </Typography>
             <Typography variant="subtitle1">
-                <b>Rs {anime.price} </b>
+                <b>Rs {courses.price} </b>
             </Typography>
         </div>
     </Card>
